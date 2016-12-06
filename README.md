@@ -1,8 +1,6 @@
 # csp-final-paper-2016
 
-## 相关论文
-
-[./reference.md](./reference.md)
+## [相关论文]((./reference.md))
 
 ## 目录结构
 
