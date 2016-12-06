@@ -4,5 +4,5 @@
 
 ## Reference
 
-[sandbox] Borate, Imamjafar, and R. K. Chavan. "Sandboxing in Linux: From Smartphone to Cloud." International Journal of Computer Applications 148.8 (2016).
-[miwa] Miwa, Shinsuke, et al. "Design and Implementation of an Isolated Sandbox with Mimetic Internet Used to Analyze Malwares." DETER. 2007.
+* [sandbox] Borate, Imamjafar, and R. K. Chavan. "Sandboxing in Linux: From Smartphone to Cloud." International Journal of Computer Applications 148.8 (2016).
+* [miwa] Miwa, Shinsuke, et al. "Design and Implementation of an Isolated Sandbox with Mimetic Internet Used to Analyze Malwares." DETER. 2007.
