@@ -25,5 +25,5 @@ System Call Interposition 是一个很古老的概念了，最著名的实现是
 
 ## Capabilities
 
-* [Confused Deputy](http://dl.acm.org/citation.cfm?id=871709)
+* [Confused Deputy](http://delivery.acm.org/10.1145/880000/871709/p36-hardy.pdf?ip=202.120.40.20&id=871709&acc=ACTIVE%20SERVICE&key=BF85BBA5741FDC6E%2E17676C47DFB149BF%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&CFID=701128792&CFTOKEN=45420582&__acm__=1481090866_797bbd8ef6a6fc442f12d56fb074170d)
 * [Capsicum: practical capabilities for UNIX](http://www.cl.cam.ac.uk/research/security/capsicum/papers/2010usenix-security-capsicum-website.pdf)
