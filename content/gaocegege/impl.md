@@ -16,7 +16,7 @@
 
 ## [System Call Interposition(SCI)](./sci.md)
 
-## [Software-based Fault Isolation](./sfi.md)
+## [Software-based Fault Isolation(SFI)](./sfi.md)
 
 ## Reference
 
