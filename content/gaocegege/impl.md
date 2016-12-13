@@ -16,6 +16,8 @@
 
 ## [System Call Interposition(SCI)](./sci.md)
 
+## [Software-based Fault Isolation](./sfi.md)
+
 ## Reference
 
 * [1] http://www.howtogeek.com/169139/sandboxes-explained-how-theyre-already-protecting-you-and-how-to-sandbox-any-program/
