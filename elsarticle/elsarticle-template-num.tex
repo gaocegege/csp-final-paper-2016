@@ -19,7 +19,7 @@
 %% with numbered style bibliographic references
 %% SP 2008/03/01
 
-\documentclass[preprint,12pt]{elsarticle}
+\documentclass[final,12pt]{elsarticle}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
@@ -42,6 +42,7 @@
 
 \usepackage{xeCJK}
 \usepackage{subfig}
+\linespread{1.2}
 
 %% The amsthm package provides extended theorem environments
 %% \usepackage{amsthm}
@@ -77,7 +78,7 @@
 %% \address{Address\fnref{label3}}
 %% \fntext[label3]{}
 
-\title{Sandboxing相关技术研究与思考}
+\title{Sandboxing 相关技术研究与思考}
 
 %% use optional labels to link authors explicitly to addresses:
 %% \author[label1,label2]{}
@@ -96,12 +97,6 @@
 \end{abstract}
 
 \begin{keyword}
-%% keywords here, in the form: keyword \sep keyword
-
-%% PACS codes here, in the form: \PACS code \sep code
-
-%% MSC codes here, in the form: \MSC code \sep code
-%% or \MSC[2008] code \sep code (2000 is the default)
 
 Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based Fault Isolation
 
@@ -115,7 +110,7 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 \section{引言}
 \label{s:introduction}
 
-随着网络全球化的发展，安全越来越成为了一个进入大众视野的议题。互联网在提供给用户以便利的同时，也对隐私安全提出了新的挑战。这样的问题存在于各种平台上，攻击者会将诸如木马、病毒、恶意软件等等内容发布到被攻击者的终端上。\cite{miwa} 虽然现在的操作系统上的安全措施已经足够强大到防止绝大多数的攻击，但是用户总是期望更加安全的环境。而沙箱是一种非常实用的安全机制，通过引入沙箱技术，程序可以在隔离的环境中运行，使得程序的运行不会影响操作系统，同时操作系统也不会影响到程序。在传统的操作系统的抽象中，用户的应用对于系统各种资源的使用都是无限制的，而沙箱技术是对其运行时环境的隔离 \cite{sandbox}。
+随着网络全球化的发展，安全越来越成为了一个进入大众视野的议题。互联网在提供给用户以便利的同时，也对隐私安全提出了新的挑战。这样的问题存在于各种平台上，攻击者会将诸如木马、病毒、恶意软件等等内容发布到被攻击者的终端上 \cite{miwa}。虽然现在的操作系统上的安全措施已经足够强大到防止绝大多数的攻击，但是用户总是期望更加安全的环境。而沙箱是一种非常实用的安全机制，通过引入沙箱技术，程序可以在隔离的环境中运行，使得程序的运行不会影响操作系统，同时操作系统也不会影响到程序。在传统的操作系统的抽象中，用户的应用对于系统各种资源的使用都是无限制的，而沙箱技术是对其运行时环境的隔离 \cite{sandbox}。
 
 \begin{figure*}
 \centering
@@ -139,11 +134,9 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 \section{威胁模型}
 \label{s:threat_model}
 
-目前在互联网上，不受信任的应用的数量正在快速增长，让不受信任的应用程序能够更好地运行在系统中，是一件相当困难的事情。这些不受信用的应用程序可能隐藏有带有攻击意图的代码，它们获取操作系统高权限、读取文件系统中的敏感数据（比如密码、照片、文档等）、植入广告、导致系统崩溃等等。而攻击手段有很多，其中包括代码注入、Cross Site Scripting(CSS)、缓冲区溢出、Return-oriented programming(ROP) 等等 \cite{miwa}。
+目前在互联网上，不受信任的应用的数量正在快速增长，让不受信任的应用程序能够更好地运行在系统中，是一件相当困难的事情。这些不受信用的应用程序可能隐藏有带有攻击意图的代码，它们获取操作系统高权限、读取文件系统中的敏感数据（比如密码、照片、文档等）、植入广告、导致系统崩溃等等。而攻击手段有很多，其中包括代码注入、Cross Site Scripting(CSS)、缓冲区溢出、Return-oriented programming(ROP) 等等 \cite{miwa}。	
 
-传统的操作系统并没有很好地解决这方面的问题，在隔离方面，仅仅依靠运行时的简单隔离是不够的。新的趋势使得操作系统应该在处理器，内存等硬件层面和进程，文件系统等软件层面进行更加细致的隔离和容错。这也是沙箱技术关注的焦点。沙箱技术有很多种，它们实现的方式也是不同的，但是其目的都是为了限制代码的运行，给予其隔离的运行环境。
-
-// TODO：完善威胁模型
+传统的操作系统并没有很好地解决这方面的问题，在隔离方面，仅仅依靠运行时的简单隔离是不够的。新的趋势使得操作系统应该在处理器，内存等硬件层面和进程，文件系统等软件层面进行更加细致的隔离和容错。这也是沙箱技术关注的焦点。不同的沙箱技术针对的威胁模型都是不一样的，但是它们在宏观上都有一个共同点：防止不受信任的应用程序可以随意访问地操作系统或者底层的硬件。
 
 \section{Sandboxing 相关技术以及使用场景}
 \label{s:implementation}
@@ -158,30 +151,50 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 \item
 各类下载内容的查看器，以 PDF 文件为例，浏览器下载的 PDF 文件会使用系统内的 PDF 阅读器打开，目前一些 PDF 阅读器正在使用沙箱技术来解析 PDF 文件，其中最有名的是 Adobe Reader。它运行在一个沙箱中，因此如果 PDF 文件中有恶意内容，也不会影响到操作系统。
 \item
-浏览器本身，浏览器是沙箱技术运用最广泛的桌面应用之一。浏览器不止将其请求的网页应用和插件等运行在容器中，浏览器本身也是运行在一个独立而隔离的沙箱中的。低权限的沙箱运行可以保证即使恶意内容破坏了网页应用所在的沙箱，也会被浏览器的沙箱所限制\footnote{http://www.howtogeek.com/169139/sandboxes-explained-how-theyre-already-protecting-you-and-how-to-sandbox-any-program/}。
+浏览器本身，浏览器是沙箱技术运用最广泛的桌面应用之一。浏览器不止将其请求的网页应用和插件等运行在容器中，浏览器本身也是运行在一个独立而隔离的沙箱中的。低权限的沙箱运行可以保证即使恶意内容破坏了网页应用所在的沙箱，也会被浏览器的沙箱所限制 \footnote{http://www.howtogeek.com/169139/sandboxes-explained-how-theyre-already-protecting-you-and-how-to-sandbox-any-program/}。
 \end{itemize}
 
-本节将介绍 System Call Interposition(SCI)、Software-based Fault Isolation(SFI) 和 Capabilities 等技术在浏览器中的体现。System Call Interposition(SCI) 通过对系统调用的跟踪和限制，来使得应用不可以调用一些敏感的系统调用，或者不能将敏感的参数传入到系统调用中。Software-based Fault Isolation(SFI) 通过对指令的重写，使得应用运行时的故障不会往外传播，同时在一定程度上限制了代码的控制流。Capability Security Model(CSM)是一种区别于对服务提供者进行诸如Acccess Control List(ACL)的权限检查，而将权限检查绑定在被需要的实体上的一种设计理念\footnote{http://wiki.c2.com/?CapabilitySecurityModel}。这是三种完全不同的思路，它们的目的都是隔离代码的运行环境，构建出一个高度隔离的，低特权级的沙箱环境。
+本节将介绍 System Call Interposition(SCI)、Software-based Fault Isolation(SFI) 和 Capabilities 等技术在浏览器中的体现。System Call Interposition(SCI) 通过对系统调用的跟踪和限制，来使得应用不可以调用一些敏感的系统调用，或者不能将敏感的参数传入到系统调用中。Software-based Fault Isolation(SFI) 更加关注如何在一个应用程序产生了故障后，不会影响到其他的应用程序，同时保证应用程序之间的数据和代码是不能被彼此访问到的。Capability Security Model(CSM)是一种区别于对服务提供者进行诸如Acccess Control List(ACL)的权限检查，而将权限检查绑定在被需要的实体上的一种设计理念 \footnote{http://wiki.c2.com/?CapabilitySecurityModel}。这是三种完全不同的思路，它们的目的都是隔离代码的运行环境，构建出一个高度隔离的，低特权级的沙箱环境。
 
 \subsection{System Call Interposition(SCI)}
 \label{ss:sci}
 
-在浏览器中，有很多互联网上的内容是需要下载，然后使用本地的查看器打开的。比如 PDF 文件等，需要通过 Adobe Reader 等专用软件打开。但是下载的内容有可能是隐藏有恶意代码的，但是本地的查看器并不一定将其视为不可信的内容，因此下载的内容在被相应的查看器打开时，恶意代码可能会被错误地执行了。对 System Call Interposition（以下称为 SCI）的研究，最开始的动机就是如何限制打开浏览器下载内容的助手应用，希望能够限制助手应用本身进行系统调用的权限。Janus\cite{goldberg}是 Goldberg 在 1996 年发表的论文，也是第一个成型的 SCI 系统实现，是这一领域奠基性的论文。随后有很多相关研究就此展开，研究者们继续完善 Janus，并且提出了新的解决思路。Ostia\cite{garfinkel}是 2004 年被提出的，它指出 Janus 存在很多缺点，而这些缺点的产生是因为架构问题，而不是 SCI 所固有的。因此它提出了一种新的架构，并且验证了他们的工作是比 Janus 的实现要高效而且可以解决 Janus 的缺点与问题。
+在浏览器中，有很多互联网上的内容是需要下载，然后使用本地的查看器打开的。比如 PDF 文件等，需要通过 Adobe Reader 等专用软件打开。但是下载的内容有可能是隐藏有恶意代码的，但是本地的查看器并不一定将其视为不可信的内容，因此下载的内容在被相应的查看器打开时，恶意代码可能会被错误地执行了。对 System Call Interposition（以下称为 SCI）的研究，起初的动机是如何限制打开浏览器下载内容的助手应用，希望能够限制助手应用本身进行系统调用的权限。它的思想是通过监控和审查应用程序进行的系统调用，保证其不能顺利进行系统不允许其进行的系统调用。SCI 的思想参考了 Unix 的最小特权原则，所有应用程序都应该被授予其需要的权限组成的最小集合。本节将以 Janus 和 Ostia 作为主要内容，介绍 SCI 的思想和实现。
 
 \subsubsection{Janus}
 \label{sss:janus}
 
-// TODO
+Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个成型的 SCI 系统实现，是这一领域奠基性的论文。Janus 最初的动机是限制助手应用的权限，其提出了几种可能的实现方法。其中包括：
+
+\begin{itemize}
+\item
+在每个助手应用中单独地实现自己的安全保护。这是第一个被排除的选择，这样的实现会使得应用的实现变得更加复杂，而且应用的提供商未必有动力去实现完全的安全保护。而很多应用是闭源的，因此成本极大。从另一方面来讲，安全可以在更加底层的角度来实现。
+\item
+在操作系统中加入新的安全特性。所有的应用程序都是运行在操作系统之上的，因此只要在操作系统层面实现了安全策略，那所有的应用程序都会受益。但是 Janus 最后没有采取这样的方法，因为开发和维护这样的特性是需要修改内核的，很多用户不希望自己在添加安全保护的时候需要请系统管理员来为自己的操作系统打补丁。而且在内核中的修改是特别危险的，内核中的 bug 往往会造成更加严重的安全事故。
+\item
+使用已有的 Reference Monitor。传统操作系统中的 monolithic 的 reference monitor 不能保护应用程序不会被攻击，而只能保证攻击不会很快的传播。
+\item
+传统的网络防火墙。这样的思路实现起来会非常复杂，因为这样的一个过滤器或者代理需要支持所有的文件格式等等。
+\end{itemize}
+
+因此，在分析了现有的思路都不能满足需求后，Janus 的作者提出了一种新的思路，一种在用户态实现安全的方法。它的实现不要求修改操作系统和应用程序，
+
+\begin{figure*}
+\centering
+\label{fig:janus}
+\includegraphics[width=0.7\linewidth]{imgs/janus}
+\caption{Janus 架构图}
+\end{figure*}
 
 \subsubsection{Ostia}
 \label{sss:ostia}
 
-// TODO
+在 Janua 之后，有很多相关研究就此展开，研究者们继续完善 Janus，并且提出了新的解决思路。Ostia \cite{garfinkel} 是 2004 年被提出的，它指出 Janus 存在很多缺点，而这些缺点的产生是因为架构问题，而不是 SCI 所固有的。因此它提出了一种新的架构，并且验证了他们的工作是比 Janus 的实现要高效而且可以解决 Janus 的缺点与问题。
 
 \subsection{Software-based Fault Isolation(SFI)}
 \label{ss:sfi}
 
-浏览器是一个泛用性很强的应用，因此浏览器要求支持以插件的方式进行功能扩展。同时，为了提高浏览器中代码执行的性能，目前很多浏览器都在探索在浏览器中执行 Native 代码的方法。其中谷歌浏览器支持将 Native 代码运行在一个使用 Software-based Fault Isolation(以下称为 SFI) 的沙箱中。SFI 是在 1994 年在 Wahbe 的论文中第一次出现的\cite{wahbe1994efficient}，SFI 通过修改程序二进制的方式，使得程序的二进制代码符合一些规则，来完成对于错误的隔离。在后来的论文中，谷歌结合了 SFI 和其他的一些沙箱技术，实现了一个面向 Native 代码运行环境的沙箱，这项技术一直到现在仍在被谷歌 Chrome 浏览器使用\cite{nacl}。
+浏览器是一个泛用性很强的应用，因此浏览器要求支持以插件的方式进行功能扩展。同时，为了提高浏览器中代码执行的性能，目前很多浏览器都在探索在浏览器中执行 Native 代码的方法。其中谷歌浏览器支持将 Native 代码运行在一个使用 Software-based Fault Isolation(以下称为 SFI) 的沙箱中。SFI 是在 1994 年在 Wahbe 的论文中第一次出现的 \cite{wahbe1994efficient}，SFI 通过修改程序二进制的方式，使得程序的二进制代码符合一些规则，来完成对于错误的隔离。在后来的论文中，谷歌结合了 SFI 和其他的一些沙箱技术，实现了一个面向 Native 代码运行环境的沙箱，这项技术一直到现在仍在被谷歌 Chrome 浏览器使用 \cite{nacl}。
 
 \subsubsection{Efficient Software-based Fault Isolation}
 \label{sss:esfi}
@@ -198,11 +211,11 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 
 // TODO: 加一段浏览器使用场景的引入
 
-早在1988年，Normhardy就提出了confused deputies problem\cite{deputies}问题，并借此指出了capability的意义与价值。Confused deputies problem的场景可以大致描述为，一个程序需要在执行不同任务的时候，分别取得了不同的权限，这里的权限与前述的任务一一对应，但是一些恶意行为会混淆这里的权限与任务的对应，从而使得程序具有了执行不可预计的行为的权限，即其根本原因在于程序行为与其所拥有的权限之间的映射关系没能被很好的维护。但是在处理这个问题的时候，传统的基于ACL机制的解决方法往往会使得这个维护过程极其复杂，尤其当这里的映射关系的种类和数量变得繁多的时候，哪怕只是更新一个映射，其所带来的边际成本都会是递增的。同时，在这个问题上，"blame the user"（在这里，user是程序本身）是不合理的，而是应该是由OS来应对这个安全问题\footnote{http://wiki.c2.com/?ConfusedDeputyProblem}。Capability作为一种被认为是可行的解决方案，其核心思想是
+早在1988年，Normhardy就提出了confused deputies problem \cite{deputies} 问题，并借此指出了capability的意义与价值。Confused deputies problem的场景可以大致描述为，一个程序需要在执行不同任务的时候，分别取得了不同的权限，这里的权限与前述的任务一一对应，但是一些恶意行为会混淆这里的权限与任务的对应，从而使得程序具有了执行不可预计的行为的权限，即其根本原因在于程序行为与其所拥有的权限之间的映射关系没能被很好的维护。但是在处理这个问题的时候，传统的基于ACL机制的解决方法往往会使得这个维护过程极其复杂，尤其当这里的映射关系的种类和数量变得繁多的时候，哪怕只是更新一个映射，其所带来的边际成本都会是递增的。同时，在这个问题上，"blame the user"（在这里，user是程序本身）是不合理的，而是应该是由OS来应对这个安全问题\footnote{http://wiki.c2.com/?ConfusedDeputyProblem}。Capability作为一种被认为是可行的解决方案，其核心思想是
 
 // TODO： 核心思想 + 可靠（与ACL从效果上一致）
 
-而Capability-based Security由于性能上的问题，大都被OS发行商所拒绝，很少出现在商业化的OS上。Capsicum\cite{capsicum}作为被纳入FreeBSD的一个基于capability的安全框架，是主要的一种系统级别的实现方式，并被Chromium作为其在FreeBSD下的安全基础\footnote{https://wiki.freebsd.org/Chromium}。下文将以此作为样例，展开阐述capability在系统级实现中的相关细节。
+而Capability-based Security由于性能上的问题，大都被OS发行商所拒绝，很少出现在商业化的OS上。Capsicum \cite{capsicum} 作为被纳入FreeBSD的一个基于capability的安全框架，是主要的一种系统级别的实现方式，并被Chromium作为其在FreeBSD下的安全基础\footnote{https://wiki.freebsd.org/Chromium}。下文将以此作为样例，展开阐述capability在系统级实现中的相关细节。
 
 \subsubsection{设计思路}
 \label{sss:design}
@@ -249,5 +262,3 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 
 \end{document}
 \endinput
-%%
-%% End of file `elsarticle-template-num.tex'.
