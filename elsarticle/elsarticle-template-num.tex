@@ -211,7 +211,7 @@ Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个
 \item
 忽略间接的对文件系统的访问。虽然 Janus 会监控应用程序对文件系统的访问，但是有一些间接的访问是很难防止。举例说明，当应用程序以 core dump 的方式创建一些文件时，Janus 并没有办法禁止其对文件系统的操作。
 \item
-数据竞争。因为在用户态的 policy engine 和在内核态的系统调用不是原子性的，数据竞争就有可能发生。这是比之前两个都要严重的问题，也是 SCI 的另一实现，Ostia 试图解决的问题\cite{garfinkel2003traps}。
+数据竞争。因为在用户态的 policy engine 和在内核态的系统调用不是原子性的，数据竞争就有可能发生。这是比之前两个都要严重的问题，也是 SCI 的另一实现，Ostia 试图解决的问题\cite{garfinkel2003traps}，这将在下一节中详细介绍。
 \end{itemize}
 
 \subsubsection{Ostia}
@@ -219,7 +219,16 @@ Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个
 
 在 Janus 之后，有很多相关研究就此展开，研究者们继续完善 Janus，并且提出了新的解决思路。Ostia \cite{garfinkel} 是 2004 年被提出的，它指出 Janus 存在很多缺点，而这些缺点的产生是因为架构问题，而不是 SCI 所固有的。因此它提出了一种新的架构，并且验证了他们的工作是比 Janus 的实现要高效而且可以解决 Janus 的缺点与问题。
 
-// TODO
+Ostia 认为，以  Janus 为代表的 SCI 实现最大的问题在于，Janus 可能会导致数据竞争。但是，这个问题并不是 SCI 这样的思想带来的，而是与 Janus 的实现有关的。所以 Ostia 提出了基于委托的架构，Janus 是基于过滤的架构，而 Ostia 的架构与其不同，如图 \ref{fig:ostia} 所示，Osita 在应用程序的进程中多了一个组件，即 emulation library。对于每一个应用程序，都有一个 agent 与之对应。在 Janus 中，因为应用程序是被监控的程序，所以需要由 Janus 创建一个新进程，再执行应用程序的逻辑。与之类似的是，Ostia 实现了一个 ELF 格式的二进制加载器，在加载应用程序时，它同时还会加载 emulation library 到应用程序的内存空间中。整个的实现是回调的机制，当有一个敏感的系统调用被执行时，内核会把请求重定向到跟调用的进程在同一内存空间的 emulation library 中的 handler 处理，handler 会将请求转发给 agent，随后再有 agent 进行权限的校验，在校验成功后会发送真正的请求。
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.8\linewidth]{imgs/ostia}
+\caption{Ostia 架构图}
+\label{fig:ostia}
+\end{figure*}
+
+
 
 \subsection{Software-based Fault Isolation(SFI)}
 \label{ss:sfi}
@@ -262,6 +271,15 @@ Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个
 
 \section{Sandboxing 各种实现的分析与对比}
 \label{s:evaluation}
+
+// SFI 只能针对特定平台（ARM，X86）
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.7\linewidth]{imgs/difference}
+\caption{三种实现的比较}
+\label{fig:difference}
+\end{figure*}
 
 \section{讨论与总结}
 \label{s:tucao}
