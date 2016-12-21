@@ -9,3 +9,7 @@ content      内容
 elsarticle   论文模板
 reference.md 相关论文
 ```
+
+## 开源许可
+
+CC BY-NC-SA
