@@ -256,7 +256,18 @@ SFI 的隔离实现，相比于传统的方式有着更小的 overhead，同时�
 \subsubsection{Native Client}
 \label{sss:nacl}
 
-Native Client 是谷歌 Chrome 浏览器上的一个特性，开发者可以通过它在浏览器中运行原生的程序，以解决以 Javascript 为代表的浏览器端代码执行效率慢的问题。
+Native Client 是谷歌 Chrome 浏览器上的一个特性，开发者可以通过它在浏览器中运行原生的程序，以解决以 Javascript 为代表的浏览器端代码执行效率慢的问题。严格来说 Native Client 结合了 SCI, SFI 等多种技术，进行了实现。
+
+插件程序是各种主流浏览器都有支持的扩展方式，通过插件的方式，用户可以为自己的浏览器增添新的特性与功能。微软的 ActiveX 是最著名的插件支持，在用户浏览网页时，IE 浏览器可以自动下载网页上的 ActiveX 控件，增强网页的功能。但是 ActiveX 也因为漏洞多而饱受争议，所有的控件拥有访问 Windows API 的权力，这使得操作系统的安全受到了很大的挑战。而 Native Client 希望将插件运行在一个隔离可控的沙箱中，用沙箱来限制插件的执行环境。
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.65\linewidth]{imgs/nacl}
+\caption{Native Client 架构图}
+\label{fig:nacl}
+\end{figure*}
+
+
 
 \subsection{Capabilities}
 \label{ss:capabilities}
@@ -298,6 +309,7 @@ Native Client 是谷歌 Chrome 浏览器上的一个特性，开发者可以通�
 \label{s:tucao}
 
 % 目前 Web Assembly 得到了很大的关注，基本来说 nacl 算是 GG 了，心疼我谷。不过值得一提， Web Assembly 是 nacl 和 asm.js 的团队一起开发出来的。JavaScript 之父 Brendan Eich 曾经在采访中说大概 Wasm 是对 nacl 的最后一击。Web Assembly 上的安全是之后的一个比较有意义的研究方向，因为现在 Wasm 是业界主流，大家都说好，能为它的安全做出一点微小的贡献，不仅有研究意义，还有业界的价值。
+% https://my.oschina.net/1pei/blog/488584
 
 \clearpage
 
