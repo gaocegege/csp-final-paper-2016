@@ -1,14 +1,12 @@
-# csp-final-paper-2016
+# Sandboxing 相关技术研究与思考
+
+CSP 2016 期末论文
+
+## 论文
+
+[Sandboxing 相关技术研究与思考](./_output/final.pdf)
 
 ## [相关论文](./reference.md)
-
-## 目录结构
-
-```text
-content      内容
-elsarticle   论文模板
-reference.md 相关论文
-```
 
 ## 开源许可
 
