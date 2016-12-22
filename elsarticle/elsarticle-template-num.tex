@@ -269,6 +269,8 @@ Native Client 是谷歌 Chrome 浏览器上的一个特性，开发者可以通�
 
 Native Client 使用了两层沙箱的架构，内层沙箱使用了 SFI 的技术，外层沙箱使用了 SCI 的技术。Native Client 相比于之前的实现，最大的贡献是改进了 SFI 的实现，减小了其在运行时的 overhead。图 \ref{fig:nacl} 中的 Native Client Module，即原生的插件代码。这一部分是通过谷歌修改过的 LLVM 或者 gcc 工具链编译出的二进制程序，在编译时会保证一定的规则，比如在跳转时进行段寄存器的校验等等 SFI 相关的指令检查。这是内层沙箱，这一层沙箱保证了原生的插件代码只能在自己的 Fault Domain 中运行。外层沙箱是由 Systrace \cite{provos2003improving} 提供的类似上文中提到的 Janus 和 Ostia 的系统调用拦截的特性。
 
+在之前的 SFI 实现中，为了在跳转时检查控制流的转移是否合法，需要额外的14个字节的指令。而在 Native Client 中，通过使用对齐的内存，使得跳转指令只能跳转到在32字节对齐的地址段中的第一个地址处。因此，在跳转时的检查由原本的14个字节的指令变成了8个字节的指令。这也是 Native Client 对于之前的研究最大的改进。
+
 \subsection{Capabilities}
 \label{ss:capabilities}
 
