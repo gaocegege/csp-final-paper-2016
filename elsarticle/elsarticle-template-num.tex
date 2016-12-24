@@ -298,7 +298,14 @@ Native Client 使用了两层沙箱的架构，内层沙箱使用了 SFI 的技�
 \section{Sandboxing 各种实现的分析与对比}
 \label{s:evaluation}
 
-% SFI 只能针对特定平台（ARM，X86）
+\subsection{实现比较}
+\label{ss: comparision}
+
+在分类中，SFI 属于第一类沙箱，而 SCI 和 Capability 属于第二类沙箱。它们各自的实现如图 \ref{fig:difference} 所示，分别是实现在用户态，内核态以及在内核态和用户态都有一部分实现。其中 SFI 是完全用户态的实现，依靠二进制改写或修改编译器等等方式来进行错误的隔离。这样的实现相比于其他两种技术的实现方式，会更加简单。但是 SFI 的实现往往会依赖操作系统的 API 或者 ABI，这使得对于不同的处理器架构而言，要进行不同的实现，普适性不是很好。Native Client 最初是在 X86 架构上实现的。其后的论文 \cite{sehr2010adapting} 介绍了 SFI 在 ARM 和 X86-64 架构上的实现方式。相比于 X86 的实现，就会有一些不同的实现思路。
+
+而 SCI 要求在内核态和用户态都要进行一定的实现，因为 SCI 的 policy engine 往往是在用户态运行，而真正处理系统调用的逻辑是在内核中完成的。SCI 能够过滤所有不合法的系统调用，这是其主要关注的问题，也是其他两种方式实现不了的。但是 SCI 的缺点也是非常明显的：time-of-check/time-of-use 竞争问题 \cite{bishop1996checking}。因为 SCI 在用户态检查合法性，而在内核态执行真正的系统调用，所以权限检查与系统调用的执行不是原子性的。这就带来了数据竞争的问题。在早期的 Janus 实现中，会出现全局、进程间和线程间三种数据竞争。而 Ostia 通过改变了实现的架构，解决了后两者的数据竞争的问题，对于前者，Ostia 采取了一种相对而言不太严谨的做法来规避了问题的发生，因为 Ostia 的 委托架构，使得 Agent 可以重新组织系统调用使得应用发起的系统调用遵循操作系统的惯例。但是我们认为这样有可能会导致一些对顺序敏感的应用程序在调用时产生顺序上的错误，并没有完全解决问题。
+
+% 添加 Capabilities 的优缺点
 
 \begin{figure*}
 \centering
@@ -306,6 +313,28 @@ Native Client 使用了两层沙箱的架构，内层沙箱使用了 SFI 的技�
 \caption{三种实现的比较}
 \label{fig:difference}
 \end{figure*}
+
+\subsection{性能分析}
+\label{ss: analysis}
+
+沙箱技术在提高了隔离性的同时，不可避免地为系统引入了新的 overhead。由于三者的实现不同，因此有着不同的 overhead。这三种沙箱技术的 overhead 大多体现在网络，计算和系统调用上。三者的研究论文并不是完全按照这三个不同子系统的 overhead 来进行验证与测试的，但是其测试结果从侧面反映出了在三者之上的性能损耗。
+
+以 Janus、Ostia 为代表的 SCI 技术，关注过滤系统调用请求。因此该实现在网络和计算上的性能损耗非常小，基本可以忽略不计。Ostia 是在我们所见的论文中，唯一一个以这三方面作为不同的研究对象进行性能损耗的讨论的，Ostia 在对网络和计算的测量中，两者的 overhead 均没有超过 1\%，而在系统调用方面，改进后的 Janus \cite{wagner1999janus} 有 8\% 的 overhead，而 Osita 因为委托架构的实现，在解决了部分数据竞争问题的同时，带来了 25\% 的 overhead。
+
+SFI 相比于 SCI，性能损耗更多体现在计算上，而在网络和系统调用上都可以忽略不计。在计算方面，SFI 的 overhead 体现在：
+
+\begin{itemize}
+\item
+使用 SFI 技术对 store 和 jmp 等指令进行保护检查。这是 SFI 性能损耗最大的一点，平均有 22\%。Native Client 对原本的实现有所改进，但是并没有质的改变，仍然是同一数量级。
+\item
+以及为了实现 SFI 向原本的二进制中插入的指令的长度。SFI 需要多余的指令完成检查的逻辑，因此支持 SFI 的二进制文件会比不支持 SFI 的文件多 10\% 左右的指令。
+\item
+相比于传统的执行多使用的寄存器数目。因为 SFI 使用了栈寄存器等，因此在寄存器数目上也存在 overhead，但这基本可以忽略不计。
+\end{itemize}
+
+综合来看，SFI 在计算上有平均 5\% 的 overhead。
+
+% 添加 Capabilities 的 overhead 分析
 
 \section{讨论与总结}
 \label{s:tucao}
