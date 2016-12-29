@@ -1,0 +1,63 @@
+%# -*- coding: utf-8-unix -*-
+%%==================================================
+%% thesis.tex
+%%==================================================
+
+% 双面打印
+\documentclass[master, fontset=adobe, openright, twoside]{sjtuthesis}
+% \documentclass[bachelor, fontset=adobe, openany, oneside, submit]{sjtuthesis} 
+% \documentclass[master, adobefonts, review]{sjtuthesis} 
+% \documentclass[%
+%   bachelor|master|doctor,	% 必选项
+%   fontset=adobe|windows,  	% 只测试了adobe
+%   oneside|twoside,		% 单面打印，双面打印(奇偶页交换页边距，默认)
+%   openany|openright, 		% 可以在奇数或者偶数页开新章|只在奇数页开新章(默认)
+%   zihao=-4|5,, 		% 正文字号：小四、五号(默认)
+%   review,	 		% 盲审论文，隐去作者姓名、学号、导师姓名、致谢、发表论文和参与的项目
+%   submit			% 定稿提交的论文，插入签名扫描版的原创性声明、授权声明 
+% ]
+
+% 逐个导入参考文献数据库
+\addbibresource{bib/thesis.bib}
+% \addbibresource{bib/chap2.bib}
+
+\begin{document}
+
+%% 无编号内容：中英文论文封面、授权页
+\include{tex/id}
+\maketitle
+
+\frontmatter 	% 使用罗马数字对前言编号
+
+%% 摘要
+\pagestyle{main}
+\include{tex/abstract}
+
+%% 目录、插图目录、表格目录
+\tableofcontents
+
+\mainmatter	% 使用阿拉伯数字对正文编号
+
+%% 正文内容
+\pagestyle{main}
+\include{tex/intro}
+\include{tex/threat}
+\include{tex/implementation}
+\include{tex/comparision}
+\include{tex/summary}
+
+\backmatter	% 文后无编号部分 
+
+%% 参考资料
+\printbibliography[heading=bibintoc]
+
+%% 致谢、发表论文、申请专利、参与项目、简历
+%% 用于盲审的论文需隐去致谢、发表论文、申请专利、参与的项目
+\makeatletter
+
+% \include{tex/patents}	  %% 申请专利
+% \include{tex/resume}	  %% 个人简历
+
+\makeatother
+
+\end{document}
