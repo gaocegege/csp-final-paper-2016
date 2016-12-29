@@ -387,7 +387,7 @@ SFI 相比于 SCI，性能损耗更多体现在计算上，而在网络和系统
 
 值得一提的是，Capsicum的作者尝试从另一个角度来看待这个问题 \cite{capsicum}：任何安全隔离都不可避免地带来开销，换言之，任何security-critical的程序的设计者其实都默认接受了一定的overhead，所以不如以“如何用一定的overhead来换取更好的安全性”作为问题的核心。虽然这一点就测试而言，似乎该怎么测试还得怎么测试，但是我们认为，在系统设计之初就抱有这样的想法的话，不失为另辟蹊径的一种策略，可作参考。
 
-\section{讨论、展望与总结}
+\section{讨论、总结与展望}
 \label{s:tucao}
 
 在上文中，主要探讨了三种沙箱的实现思路以及对比。本节将对沙箱技术的发展，应用以及未来的研究点进行预测和概括。
@@ -411,40 +411,11 @@ WebAssembly 是以后 Web 发展的新趋势，也得到了谷歌、微软、苹
 
 Capability作为另一种安全哲学，支持了细粒度的AC，其实可以被应用在很多地方。其在内核层面的实现，由于技术限制以及编程难度，并没有被商业OS们所真正采纳。而Capsicum作为其主要的内核实现，被纳入在FreeBSD 9中，并成为了Chromium在FreeBSD上的主要安全基础。可见，如何更好地权衡开销与性能，它在系统层面还有很长的路要走。退而求其次，capability-oriented programming则应运而生，即在程序设计层面应用Capability的安全哲学，其在程序设计上提出了相应的规范和要求，并得到了一定程度的认可和应用：OpenSSH, Apple's Security Server都遵循了这样的设计思路。也正因为如此，我们认为capability是三种沙箱技术中最具有实际的借鉴意义的。
 
-同时，结合CSP对上述三种沙箱的设计与实现进行分析，可得：
-\begin{itemize}
-	\item
-	SCI
-	\item
-	SFI
-	\item
-	Capsicum进行分析，我们认为其主要遵循了：
-		\begin{itemize}
-			\item Principle of least principle，即细粒度的AC
-			\item Principle of least astonishment，即尽可能复用了UNIX POSIX的API逻辑
-			\item Unyielding foundations rule，即Capability与fd进行了深度整合，并被纳入了FreeBSD 9的内核实现中
-		\end{itemize}
-\end{itemize}
+这三种沙箱技术，都是属于系统领域的研究，在系统设计时，其在实现上的考量，借鉴了很多经典的计算机系统原理。Janus 在实现时，总结了宏内核、微内核以及混合内核的想法，提出了在用户态和内核态同时来实现 SCI 的想法。为了实现全方位的沙箱限制，Native Client 从各种角度，使用了各种技术来对沙箱内的代码进行限制，保证了代码的最小权限运行。Capsicum 源自最小特权原则，而且在考虑到 least astonishment 之后，选择尽可能地复用 Unix API，并且与文件描述符的抽象进行了整合，被并入了FreeBSD 9的内核中，遵循 Unyielding foundations 的规则。由此可见，一个好的系统研究并不是完全从零开始，而是面对新的问题，尽可能地使用经典的，经过时间考验的设计原理来解决，这样可以最大化系统的可用性。
 
 %% \clearpage
 
 \section*{参考文献}
-
-%% The Appendices part is started with the command \appendix;
-%% appendix sections are then done as normal sections
-%% \appendix
-
-%% \section{}
-%% \label{}
-
-%% If you have bibdatabase file and want bibtex to generate the
-%% bibitems, please use
-%%
-%%  \bibliographystyle{elsarticle-num} 
-%%  \bibliography{<your bibdatabase>}
-
-%% else use the following coding to input the bibitems directly in the
-%% TeX file.
 
 \bibliographystyle{elsarticle-num} 
 \bibliography{myref}
