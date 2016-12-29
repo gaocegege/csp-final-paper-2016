@@ -20,7 +20,7 @@
 %% with numbered style bibliographic references
 %% SP 2008/03/01
 
-\documentclass[final,12pt]{elsarticle}
+%% \documentclass[final,12pt]{elsarticle}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
@@ -31,7 +31,7 @@
 %% \documentclass[final,1p,times,twocolumn]{elsarticle}
 %% \documentclass[final,3p,times]{elsarticle}
 %% \documentclass[final,3p,times,twocolumn]{elsarticle}
-%% \documentclass[final,5p,times]{elsarticle}
+\documentclass[final,5p,times]{elsarticle}
 %% \documentclass[final,5p,times,twocolumn]{elsarticle}
 
 %% For including figures, graphicx.sty has been loaded in
@@ -93,7 +93,9 @@
 
 \begin{abstract}
 
-目前，互联网上的攻击越来越频繁，攻击者会通过各种攻击方式，以达到获取系统高权限，读取敏感数据等等攻击目的。沙箱作为一个用来隔离程序执行环境，使得程序在一个低权限的，高度隔离的环境中执行的技术，受到了越来越多的关注。本文以一个现代的浏览器为出发点，介绍了两类沙箱技术在其中的应用与体现，进而总结对比各种沙箱实现的特点，并且在最后对沙箱技术下一步的研究方向提出了看法。
+目前，互联网上的攻击越来越频繁，攻击者会通过各种攻击方式，以达到获取系统高权限，读取敏感数据等等攻击目的。沙箱作为一个用来隔离程序执行环境，使得程序在一个低权限的、高度隔离的环境中执行的技术，受到了越来越多的关注。本文以一个现代浏览器中的使用场景作为出发点，介绍并分析了两类沙箱技术下不同的具体实现策略，并通过总结与对比其各自的特点，对沙箱技术下一步的研究方向提出了自己的看法。
+
+Nowadays, the attacks from the Internet are more and more frequent. The attackers will do the attack through a variety of ways to obtain high authority, sensitive data, etc. The sandbox, as a technology used to isolate the run-time environment, makes the program run with low privileges, as well as high isolation，which has attracted more and more attention. In this paper, we start from the usage scenarios in a modern browser and introduce and analyze various design and implemantation of sandbox strategies, which can be classified into two types of sandbox technology. Finally we summarize the characteristics of these strategies and give our own opinions towards the future perspective in this field.
 
 \end{abstract}
 
@@ -105,6 +107,8 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 
 \end{frontmatter}
 
+%% \tableofcontents
+
 %% \linenumbers
 
 %% main text
@@ -113,18 +117,6 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 
 随着网络全球化的发展，网络安全进入了大众视野，成为一个越来越引人注目的议题。互联网在提供给用户以便利的同时，也对隐私安全提出了新的挑战。这样的问题存在于各种平台上，攻击者会将诸如木马、病毒、恶意软件等等内容发布到被攻击者的终端上 \cite{miwa}。虽然现在的操作系统上的安全措施已经足够强大到防止绝大多数的攻击，但是用户总是期望更加安全的环境。而沙箱是一种非常实用的安全机制，通过引入沙箱技术，程序可以在隔离的环境中运行，使得程序的运行不会影响操作系统，同时操作系统也不会影响到程序。在传统的操作系统的抽象中，用户的应用对于系统各种资源的使用都是无限制的，而沙箱技术是对其运行时环境的隔离 \cite{sandbox}。
 
-\begin{figure*}
-\centering
-\subfloat[第一类沙箱]{
-\label{fig:t1sb}
-\includegraphics[width=0.4\linewidth]{imgs/type-1-sandbox}
-}
-\subfloat[第二类沙箱]{
-\label{fig:t2sb}
-\includegraphics[width=0.4\linewidth]{imgs/type-2-sandbox}
-}
-\caption{沙箱分类}
-\end{figure*}
 
 沙箱技术大致可以被分为两类，其中第一类是基于隔离的沙箱，该类型的沙箱将应用的执行环境从操作系统中隔离出来，形成一个独立的执行环境。图 \ref{fig:t1sb} 展示了一个经典的基于隔离的沙箱模型。一个应用程序会在启动另一个应用程序之前先启动应用程序的沙箱，然后在沙箱内运行该应用程序，沙箱内的应用程序只能访问到沙箱内的资源。广为人知的虚拟机，容器，和传统意义上的沙箱都是这一类的沙箱模型。
 
@@ -138,6 +130,19 @@ Sandboxing \sep System Call Interposition \sep Capabilities \sep Software-based 
 目前在互联网上，不受信任的应用的数量正在快速增长，让不受信任的应用程序能够更好地运行在系统中，是一件相当困难的事情。这些不受信用的应用程序可能隐藏有带有攻击意图的代码，它们获取操作系统高权限、读取文件系统中的敏感数据（比如密码、照片、文档等）、植入广告、导致系统崩溃等等。而攻击手段有很多，其中包括代码注入、Cross Site Scripting(CSS)、缓冲区溢出、Return-oriented programming(ROP) 等等 \cite{miwa}。	
 
 传统的操作系统并没有很好地解决这方面的问题，在隔离方面，仅仅依靠运行时的简单隔离是不够的。新的趋势使得操作系统应该在处理器，内存等硬件层面和进程，文件系统等软件层面进行更加细致的隔离和容错。这也是沙箱技术关注的焦点。不同的沙箱技术针对的威胁模型都是不一样的，但是它们在宏观上都有一个共同点：防止不受信任的应用程序可以随意访问地操作系统或者底层的硬件。
+
+\begin{figure}
+\centering
+\subfloat[第一类沙箱]{
+\label{fig:t1sb}
+\includegraphics[width=0.4\linewidth]{imgs/type-1-sandbox}
+}
+\subfloat[第二类沙箱]{
+\label{fig:t2sb}
+\includegraphics[width=0.4\linewidth]{imgs/type-2-sandbox}
+}
+\caption{沙箱分类}
+\end{figure}
 
 \section{Sandboxing 相关技术以及使用场景}
 \label{s:implementation}
@@ -180,12 +185,12 @@ Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个
 
 因此，在分析了现有的思路都不能满足需求后，Janus 的作者提出了一种新的思路，一种在用户态实现安全的方法。它的实现不要求修改操作系统和应用程序，而只是在用户态实现了一个 policy engine，进而对于每一个应用程序指定一个安全策略，由 policy engine 来保证安全策略会被应用在应用程序运行时。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.7\linewidth]{imgs/janus}
 \caption{Janus 架构图}
 \label{fig:janus}
-\end{figure*}
+\end{figure}
 
 在设计架构时，Janus 主要考虑了三点：
 
@@ -222,12 +227,12 @@ Janus \cite{goldberg} 是 Goldberg 在 1996 年发表的论文，也是第一个
 
 Ostia 认为，以  Janus 为代表的 SCI 实现最大的问题在于，Janus 可能会导致数据竞争。但是，这个问题并不是 SCI 这样的思想带来的，而是与 Janus 的实现有关的。所以 Ostia 提出了基于委托的架构，Janus 是基于过滤的架构，而 Ostia 的架构与其不同，如图 \ref{fig:ostia} 所示，Osita 在应用程序的进程中多了一个组件，即 emulation library。对于每一个应用程序，都有一个 agent 与之对应。在 Janus 中，因为应用程序是被监控的程序，所以需要由 Janus 创建一个新进程，再执行应用程序的逻辑。与之类似的是，Ostia 实现了一个 ELF 格式的二进制加载器，在加载应用程序时，它同时还会加载 emulation library 到应用程序的内存空间中。整个的实现是回调的机制，当有一个敏感的系统调用被执行时，内核会把请求重定向到跟调用的进程在同一内存空间的 emulation library 中的 handler 处理，handler 会将请求转发给 agent，随后再有 agent 进行权限的校验，在校验成功后会发送真正的请求。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.8\linewidth]{imgs/ostia}
 \caption{Ostia 架构图}
 \label{fig:ostia}
-\end{figure*}
+\end{figure}
 
 因此，所有敏感的系统调用，都会被重定向到 agent 中进行处理，这样的架构在 Ostia 中被称为委托代理架构。Ostia 可以解决一部分 Janus 不能解决的数据竞争问题。
 
@@ -241,12 +246,12 @@ Ostia 认为，以  Janus 为代表的 SCI 实现最大的问题在于，Janus �
 
 Fault Isolation 是一个在计算机科学领域存在已久的定义。在这篇论文发表之前，操作系统已经在软件和硬件层面都进行了 Fault Isolation 的实现。Remote Procedure Call（以下称为 RPC）实现了两个不同的进程间互不影响的通信，而使用不同的虚拟内存空间使得错误不会在两个进程中传播。但是这样的实现中，两个进程进行通信的成本是非常高的。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.8\linewidth]{imgs/sfi}
 \caption{Software-based Fault Isolation}
 \label{fig:sfi}
-\end{figure*}
+\end{figure}
 
 这一篇论文第一次使用沙箱一词来描述基于软件的错误隔离机制，希望能够在同一地址空间中实现错误的隔离，这样就可以大大减小通信的开销。同一虚拟内存空间被划分成若干个 Fault Domain，每个 Fault Domain 都有自己的数据段和代码段，图 \ref{fig:sfi} 阐述了这篇论文的实现思路，对于每个 Fault Domain 而言，其只能在自己的代码段中进行控制流的转移，与此同时也只能访问自己的数据段 \cite{wahbe1994efficient}。
 
@@ -261,12 +266,12 @@ Native Client 是谷歌 Chrome 浏览器上的一个特性，开发者可以通�
 
 插件程序是各种主流浏览器都有支持的扩展方式，通过插件的方式，用户可以为自己的浏览器增添新的特性与功能。微软的 ActiveX 是最著名的插件支持，在用户浏览网页时，IE 浏览器可以自动下载网页上的 ActiveX 控件，增强网页的功能。但是 ActiveX 也因为漏洞多而饱受争议，所有的控件拥有访问 Windows API 的权力，这使得操作系统的安全受到了很大的挑战。而 Native Client 希望将插件运行在一个隔离可控的沙箱中，用沙箱来限制插件的执行环境。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.65\linewidth]{imgs/nacl}
 \caption{Native Client 架构图}
 \label{fig:nacl}
-\end{figure*}
+\end{figure}
 
 Native Client 使用了两层沙箱的架构，内层沙箱使用了 SFI 的技术，外层沙箱使用了 SCI 的技术。Native Client 相比于之前的实现，最大的贡献是改进了 SFI 的实现，减小了其在运行时的 overhead。图 \ref{fig:nacl} 中的 Native Client Module，即原生的插件代码。这一部分是通过谷歌修改过的 LLVM 或者 gcc 工具链编译出的二进制程序，在编译时会保证一定的规则，比如在跳转时进行段寄存器的校验等等 SFI 相关的指令检查。这是内层沙箱，这一层沙箱保证了原生的插件代码只能在自己的 Fault Domain 中运行。外层沙箱是由 Systrace \cite{provos2003improving} 提供的类似上文中提到的 Janus 和 Ostia 的系统调用拦截的特性。
 
@@ -297,12 +302,12 @@ Capsicum是一个轻量级的capability沙盒框架，被纳入了FreeBSD9，由
 
 在设计上，Capsicum首先定义了capability mode，它是一个进程级别的credential flag，通过系统调用（cap\_enter）设置，一旦设置就不能被清除，且会通过继承或message-passing传递给它的子进程。进入capability mode的进程，其对外的交互将被限制，包括：对全局名字空间的访问；系统管理接口的调用（比如/dev、PCI bus的访问、ioctl、reboot、kldload等）等，从而限制了ambient authority。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.65\linewidth]{imgs/fs-namespace-subsets}
 \caption{全局文件系名字空间可以被委托给沙盒进程}
 \label{fig:fd-namespace-subsets}
-\end{figure*}
+\end{figure}
 
 进一步地，Capsicum拿出了自己实现capability的解决方案：尽可能复用现有的UNIX POSIX的API接口逻辑，选择拓展传统的fd（file descriptor）抽象，在其基础上进行再封装，即得到capability。这个设计比较讨巧的一点是，fd本身就具有了不可伪造的特性，且会被子进程或者通过IPC channel继承（比如fork、exec、UNIX domain socket）。而想Mac OSX和Mach对capability的管理则采取了与传统fd并列维护的策略，容易使得开发者在两者之间产生混淆与困扰。Capsicum提供新的接口cap\_new，接受fd以及一个标注权限的mask（大概有60多种）作为参数，生成对应的capability。特别地，如果参数fd本身就是capability，则新的mask必须是其子集。系统通过接口fget进行capability的权限检查，其会在内核中被转化为对应的reference，从而确保任何对该对象的访问不会绕过前述的权限检查。这里，capability可以作为目录的fd，过程中一些传递的情况被限制，使得目录的capability能够委托文件系统的名字空间的子集，如图 \ref{fig:fd-namespace-subsets}所示，以保证避免诸如chroot vulnerability的类似情况等。此外，Capsicum中禁止通过fexecve进行提权。
 
@@ -343,12 +348,12 @@ Capsicum是一个轻量级的capability沙盒框架，被纳入了FreeBSD9，由
 \subsection{实现比较}
 \label{ss: comparision}
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.7\linewidth]{imgs/difference}
 \caption{三种实现的比较}
 \label{fig:difference}
-\end{figure*}
+\end{figure}
 
 在分类中，SFI 属于第一类沙箱，而 SCI 和 Capability 属于第二类沙箱。它们各自的实现如图 \ref{fig:difference} 所示，分别是实现在用户态，内核态以及在内核态和用户态都有一部分实现。其中 SFI 是完全用户态的实现，依靠二进制改写或修改编译器等等方式来进行错误的隔离。这样的实现相比于其他两种技术的实现方式，会更加简单。但是 SFI 的实现往往会依赖操作系统的 API 或者 ABI，这使得对于不同的处理器架构而言，要进行不同的实现，普适性不是很好。Native Client 最初是在 X86 架构上实现的。其后的论文 \cite{sehr2010adapting} 介绍了 SFI 在 ARM 和 X86-64 架构上的实现方式。相比于 X86 的实现，就会有一些不同的实现思路。
 
@@ -382,7 +387,7 @@ SFI 相比于 SCI，性能损耗更多体现在计算上，而在网络和系统
 
 值得一提的是，Capsicum的作者尝试从另一个角度来看待这个问题 \cite{capsicum}：任何安全隔离都不可避免地带来开销，换言之，任何security-critical的程序的设计者其实都默认接受了一定的overhead，所以不如以“如何用一定的overhead来换取更好的安全性”作为问题的核心。虽然这一点就测试而言，似乎该怎么测试还得怎么测试，但是我们认为，在系统设计之初就抱有这样的想法的话，不失为另辟蹊径的一种策略，可作参考。
 
-\section{讨论与总结}
+\section{讨论、展望与总结}
 \label{s:tucao}
 
 在上文中，主要探讨了三种沙箱的实现思路以及对比。本节将对沙箱技术的发展，应用以及未来的研究点进行预测和概括。
@@ -391,12 +396,12 @@ SCI 已经形成了较为成熟的方法论，自 Janus 开始，几乎所有的
 
 SFI 在谷歌浏览器中得到了广泛的使用，Native Client 现在仍然是 Chrome 浏览器支持的特性之一。但是，它的实现思路并没有得到大家的广泛认可。Firefox 浏览器跟 Chrome 浏览器的选择不同，Native Client 重新定义了一个二进制的格式，来保证错误的隔离。而 Firefox 通过将原生的代码编译成中间代码，然后将中间代码翻译成 Javascript 语言的一个被称作 asm.js 的子集，进而实现了原生代码在浏览器中的运行。相比于 Native Client 的实现，asm.js 完整地复用了浏览器的沙箱，因此不会涉及 SFI 的相关运用。
 
-\begin{figure*}
+\begin{figure}
 \centering
 \includegraphics[width=0.7\linewidth]{imgs/wasm}
 \caption{WebAssembly 原型图}
 \label{fig:wasm}
-\end{figure*}
+\end{figure}
 
 目前业界对于在浏览器中运行原生代码的解决方案，是综合了 Firefox 和 Chrome 浏览器两种思路而产生的。其主要借鉴了 asm.js 的思想，因此被称为 WebAssembly。如图 \ref{fig:wasm} 所示，WebAssembly 通过将原生代码编译为一种特殊的中间格式，然后在浏览器中执行编译产生的中间代码。WebAssembly 希望能够将运行时建立在 asm.js 和 Native Client 的抽象之上。目前 WebAssembly 已经支持将中间代码转换为 asm.js 来运行。这一方案是由 Firefox 的 asm.js 团队和 Chrome 的 Native Client 团队一起开发的，Native Client 团队因为其安全方面的特长，因此主要负责 WebAssembly 的安全与隔离。
 
@@ -406,7 +411,22 @@ WebAssembly 是以后 Web 发展的新趋势，也得到了谷歌、微软、苹
 
 Capability作为另一种安全哲学，支持了细粒度的AC，其实可以被应用在很多地方。其在内核层面的实现，由于技术限制以及编程难度，并没有被商业OS们所真正采纳。而Capsicum作为其主要的内核实现，被纳入在FreeBSD 9中，并成为了Chromium在FreeBSD上的主要安全基础。可见，如何更好地权衡开销与性能，它在系统层面还有很长的路要走。退而求其次，capability-oriented programming则应运而生，即在程序设计层面应用Capability的安全哲学，其在程序设计上提出了相应的规范和要求，并得到了一定程度的认可和应用：OpenSSH, Apple's Security Server都遵循了这样的设计思路。也正因为如此，我们认为capability是三种沙箱技术中最具有实际的借鉴意义的。
 
-\clearpage
+同时，结合CSP对上述三种沙箱的设计与实现进行分析，可得：
+\begin{itemize}
+	\item
+	SCI
+	\item
+	SFI
+	\item
+	Capsicum进行分析，我们认为其主要遵循了：
+		\begin{itemize}
+			\item Principle of least principle，即细粒度的AC
+			\item Principle of least astonishment，即尽可能复用了UNIX POSIX的API逻辑
+			\item Unyielding foundations rule，即Capability与fd进行了深度整合，并被纳入了FreeBSD 9的内核实现中
+		\end{itemize}
+\end{itemize}
+
+%% \clearpage
 
 \section*{参考文献}
 
