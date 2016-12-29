@@ -39,6 +39,6 @@ SFI 相比于 SCI，性能损耗更多体现在计算上，而在网络和系统
 
 以Capsicum为代表的基于capability的安全框架主要是在内核中实现，故其overhead主要可以通过三个维度来衡量：系统调用、沙盒创建，以及实际程序的执行。将相关测试结果用基于置信度为 95\%的T检验进行分析，可得：Capsicum所提供的API，相较于原生的UNIX POSIX的API，造成了大约 10\% 的overhead；而沙盒创建（即cap\_enter），达到了与chroot相似的overhead，而相较于fork，则造成了 9\% 的overhead；在实际程序的执行上，以gzip为例可见，capability所造成的overhead主要来自于诸如沙盒创建等初始阶段，所以当任务较为琐碎的时候（在gzip样例中表现为文件大小较小），capability会产生明显且非常稳定的overhead，而当任务变大时，capability版本的程序与原程序几乎没有表现出明显的性能差异。
 
-综合来看，capability不可避免地会产生一定的overhead，且这些overhead主要来自于沙盒创建，及相关接口调用（如由fd生成相应的Capability）等，平均上有9\%左右的overhead，且能随着单个程序本身的业务逻辑的增大而得到均摊。
+综合来看，capability不可避免地会产生一定的overhead，且这些overhead主要来自于沙盒创建，及相关接口调用（如由fd生成相应的Capability）等，平均上有9\%左右的overhead，且能随着单个程序本身的业务逻辑的复杂化而得到均摊。
 
-值得一提的是，Capsicum的作者尝试从另一个角度来看待这个问题 \parencite{capsicum}：任何安全隔离都不可避免地带来开销，换言之，任何security-critical的程序的设计者其实都默认接受了一定的overhead，所以不如以“如何用一定的overhead来换取更好的安全性”作为问题的核心。虽然这一点就测试而言，似乎该怎么测试还得怎么测试，但是我们认为，在系统设计之初就抱有这样的想法的话，不失为另辟蹊径的一种策略，可作参考。
+值得一提的是，Capsicum的作者尝试从另一个角度来看待这个问题 \parencite{capsicum}：任何安全隔离都不可避免地带来开销，换言之，任何security-critical的程序的设计者其实都默认接受了一定的overhead，所以不如以“如何用一定的overhead来换取更好的安全性”作为问题的核心。虽然就测试而言似乎没有什么影响，但我们认为，在系统设计之初，这不失为另辟蹊径的一种策略，可作参考。
