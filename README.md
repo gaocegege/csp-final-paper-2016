@@ -4,7 +4,7 @@ CSP 2016 期末论文
 
 ## 论文终稿
 
-[Sandboxing 相关技术研究与思考](./_output/final-1.pdf)
+[Sandboxing 相关技术研究与思考](./_output/final.pdf)
 
 ## [相关论文](./reference.md)
 
